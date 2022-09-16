@@ -20,11 +20,9 @@ public class DoublyLinkedListExercise {
         }
 
         for (int i = highestNumber.length() - 1; i >= 0; i--) {
-
             int index = i - (highestNumber.length()-lowestNumber.length());
             if (index>= 0) {
                 lowerNumberList.setBefore(Integer.parseInt(String.valueOf(lowestNumber.charAt(index))));
-                //Iterator.iterate(lowerNumberList);
             } else {
                 lowerNumberList.setBefore(0);
             }
@@ -32,10 +30,10 @@ public class DoublyLinkedListExercise {
             higherNumberList.setBefore(Integer.parseInt(String.valueOf(highestNumber.charAt(i))));
         }
 
+        /*
         Iterator.iterate(higherNumberList);
         Iterator.iterate(lowerNumberList);
-
-
+        */
 
         int sizeList1 = higherNumberList.getListSize();
         int sizeList2 = lowerNumberList.getListSize();
@@ -48,15 +46,12 @@ public class DoublyLinkedListExercise {
 
 
         boolean rest = false;
-        int i = 1;
+        int i = 0;
 
         Node tail1 = higherNumberList.getTail();
         Node tail2 = lowerNumberList.getTail();
 
         int sum = tail1.getData() + tail2.getData();
-
-        System.out.println(tail1);
-        System.out.println(tail2);
 
         //If sum is over 9
         if (sum > 9) {
@@ -68,60 +63,35 @@ public class DoublyLinkedListExercise {
 
         Node prev1 = tail1.getPrev();
         Node prev2 = tail2.getPrev();
+        while (i < (highestListSize - 1)) {
+            sum = prev1.getData() + prev2.getData();
 
-        while (i < highestListSize) {
-            if (!isNull(prev1) && !isNull(prev2)) {
-                sum = prev1.getData() + prev2.getData();
-
-                if (rest) {
-                    sum += 1;
-                }
-                //If sum is over 9
-                if (sum > 9) {
-                    result.setBefore(sum%10);
-                    rest = true;
-                } else {
-                    result.setBefore(sum);
-                    rest = false;
-                }
-
+            if (rest) {
+                sum += 1;
+            }
+            //If sum is over 9
+            if (sum > 9) {
+                result.setBefore(sum%10);
+                rest = true;
             } else {
-                if (!isNull(prev1.prev)) {
-                    result.setBefore(prev1.getData());
-                }
-
-                if (!isNull(prev2.prev)) {
-                    result.setBefore(prev2.getData());
-                }
+                result.setBefore(sum);
+                rest = false;
             }
 
-            if (!isNull(prev1.prev)) {
+            if (!isNull(prev1.prev) && !isNull(prev2.prev)) {
                 prev1 = prev1.getPrev();
-            } else {
-                prev1 = null;
-            }
-
-            if (!isNull(prev2.prev)) {
                 prev2 = prev2.getPrev();
-            } else {
-                prev2 = null;
             }
 
             i++;
         }
 
-
-
-        /*System.out.println(number1List.getListSize());
-        System.out.println(number2List.getListSize());
-        System.out.println(result.getListSize());*/
-
-
+        if (rest) {
+            result.setBefore(1);
+        }
 
         System.out.println(number1+" "+typeOfOperation + " "+number2);
-
         Iterator.iterate(result);
-
 
     }
 }
@@ -166,7 +136,6 @@ class DoublyLinkedList {
         this.tail = null;
         this.listSize = 0;
     }
-
 
     public void setBefore(int data) {
         this.head = new Node(data, this.head, null);
@@ -214,8 +183,8 @@ class Iterator {
         System.out.print(node.data);
 
         while (node.next != null) {
-            System.out.print(node.data);
             node = node.next;
+            System.out.print(node.data);
         }
         System.out.println("");
     }
