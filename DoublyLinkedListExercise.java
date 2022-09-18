@@ -54,6 +54,7 @@ public class DoublyLinkedListExercise {
 
             Node prev1 = tail1.getPrev();
             Node prev2 = tail2.getPrev();
+            //possible optimization with highestNumber.length() instead of higherNumberList.getListSize(), just unnecessary to get list size
             while (i < (higherNumberList.getListSize() - 1)) {
                 sum = prev1.getData() + prev2.getData();
 
@@ -82,12 +83,15 @@ public class DoublyLinkedListExercise {
             }
 
             System.out.println(number1 + " " + typeOfOperation + " " + number2);
-            Iterator.iterate(result);
+
         }
 
         //SUBTRACTION
         if (typeOfOperation.equals("-")) {
 
+
+            System.out.println(number1 + " " + typeOfOperation + " " + number2);
+            //Iterator.iterate(result);
         }
     }
 }
