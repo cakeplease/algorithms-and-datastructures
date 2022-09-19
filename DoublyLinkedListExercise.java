@@ -33,30 +33,16 @@ public class DoublyLinkedListExercise {
             higherNumberList.setBefore(Integer.parseInt(String.valueOf(highestNumber.charAt(i))));
         }
 
-
         //ADDITION
         if (typeOfOperation.equals("+")) {
             boolean rest = false;
             int i = 0;
 
-            Node tail1 = higherNumberList.getTail();
-            Node tail2 = lowerNumberList.getTail();
+            Node prev1 = higherNumberList.getTail();
+            Node prev2 = lowerNumberList.getTail();
 
-            int sum = tail1.getData() + tail2.getData();
-
-            //If sum is over 9
-            if (sum > 9) {
-                result.setBefore(sum % 10);
-                rest = true;
-            } else {
-                result.setBefore(sum);
-            }
-
-            Node prev1 = tail1.getPrev();
-            Node prev2 = tail2.getPrev();
-            //possible optimization with highestNumber.length() instead of higherNumberList.getListSize(), just unnecessary to get list size
-            while (i < (higherNumberList.getListSize() - 1)) {
-                sum = prev1.getData() + prev2.getData();
+            while (i < highestNumber.length()) {
+                int sum = prev1.getData() + prev2.getData();
 
                 if (rest) {
                     sum += 1;
@@ -83,15 +69,47 @@ public class DoublyLinkedListExercise {
             }
 
             System.out.println(number1 + " " + typeOfOperation + " " + number2);
+            Iterator.iterate(result);
 
         }
 
         //SUBTRACTION
         if (typeOfOperation.equals("-")) {
+            Node prev1 = higherNumberList.getTail();
+            Node prev2 = lowerNumberList.getTail();
 
+            for (int i = 0; i<highestNumber.length(); i++) {
+                int difference = prev1.getData()-prev2.getData();
+                if (difference >= 0) {
+                    result.setBefore(difference);
+                } else {
+                    boolean isFinished = false;
+                    Node next = prev1.prev;
+
+                    int counter = 0;
+                    while(!isFinished) {
+                        if (next.data>0) {
+                            next.data -= 1;
+                            for (int j = 0; j<counter; j++) {
+                                next.next.data += 9;
+                                next = next.next;
+                            }
+                            prev1.data += 10;
+                            isFinished = true;
+                        } else {
+                            counter++;
+                            next = next.prev;
+                        }
+                    }
+                    result.setBefore(prev1.data-prev2.data);
+                }
+
+                prev1 = prev1.prev;
+                prev2 = prev2.prev;
+            }
 
             System.out.println(number1 + " " + typeOfOperation + " " + number2);
-            //Iterator.iterate(result);
+            Iterator.iterate(result);
         }
     }
 }
@@ -171,8 +189,6 @@ class DoublyLinkedList {
     public Node getTail() {
         return tail;
     }
-
-
 }
 
 
