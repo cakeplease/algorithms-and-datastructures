@@ -1,26 +1,26 @@
 package BinarySearchTree;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedList;
 
 public class BinarySearchTree {
     Node root;
 
-    public static ArrayList<Node> nodes2 = new ArrayList<>();
-    public static ArrayList<Node> nodes1 = new ArrayList<>();
-    public static ArrayList<Node> nodes0 = new ArrayList<>();
-
     public BinarySearchTree() {
         root = null;
     }
-    public boolean clear() {
-        return root == null;
-    }
-
-
 
     public void insert(String word) {
         root = insert(root, word, null);
+    }
+
+    public int getHeight(Node node) {
+        if (node == null)
+            return -1;
+        else {
+            int leftHeight = getHeight(node.left);
+            int rightHeight = getHeight(node.right);
+
+            return Math.max(leftHeight,rightHeight) + 1;
+        }
     }
 
     public Node insert(Node root, String word, Node parent) {
@@ -36,62 +36,73 @@ public class BinarySearchTree {
         return root;
     }
 
+    public void levelOrder() {
+        levelOrder(root);
+    }
+
+    public boolean isQueueAllNull(LinkedList<Node> queue) {
+        boolean result = true;
+        Object[] nodes = queue.toArray();
+        for (Object node : nodes) {
+            if (node != null) {
+                result = false;
+            }
+        }
+        return result;
+    }
+
+    public void levelOrder(Node root) {
+        LinkedList<Node> queue = new LinkedList<>();
+        queue.add(root);
+        //double space = 64;
+        double space = Math.max(Math.pow(2, getHeight(root)), 64);
+        int counter = 0;
+        while(!queue.isEmpty()) {
+           if (counter > 3) {
+                break;
+            }
+            if (!isQueueAllNull(queue)) {
+                int nodeCount = queue.size();
+
+                while (nodeCount > 0) {
+                    if (!isQueueAllNull(queue)) {
+                        Node thisNode = queue.pollFirst();
+                        if (thisNode != null) {
+                            Node.format(thisNode.word, space);
+                            queue.add(thisNode.left);
+                            queue.add(thisNode.right);
+
+                        } else {
+                            Node.format("", space);
+                            queue.add(null);
+                            queue.add(null);
+                        }
+
+                        nodeCount--;
+                    } else {
+                        nodeCount = 0;
+                    }
+                }
+
+                space = space/2;
+                System.out.println();
+            } else {
+                queue.clear();
+            }
+            counter++;
+        }
+    }
+
 
     public static void main(String[] args) {
         BinarySearchTree tree = new BinarySearchTree();
         for (String word : args) {
             tree.insert(word);
         }
-        tree.traverse();
 
-        System.out.println(nodes0);
-        System.out.println(nodes1);
-        System.out.println(nodes2);
+        tree.levelOrder();
 
     }
-
-    public void traverse() {
-        traverse(root);
-    }
-
-    public void traverse(Node root) {
-
-        if (root != null) {
-            switch (Node.getDepth(root)) {
-                case 0:
-                    nodes0.add(root);
-                    break;
-                case 1:
-                    nodes1.add(root);
-                    break;
-                case 2:
-                    nodes2.add(root);
-                    break;
-            }
-            //System.out.println(root.word);
-            traverse(root.left);
-            traverse(root.right);
-        }
-
-
-        //sortedNodes.forEach((k,v) -> System.out.println("level: "+k+" value:"+v));
-
-        /*for (HashMap.Entry<Integer, Node> entry : sortedNodes.entrySet()) {
-            Integer level = entry.getKey();
-            Node node = entry.getValue();
-
-            //System.out.println(level);
-
-            for (int i = 0; i<4; i++) {
-                if (level == i) {
-                    System.out.println(node);
-                }
-            }
-            // ...
-        }*/
-
-    }
-
 }
 
 class Node {
@@ -117,8 +128,27 @@ class Node {
         return depthCounter;
     }
 
+    public static void format(String value, double space) {
+        if (value.length() != 0) {
+            space = (space - value.length()) / 2;
+            for (int i=0; i<space; i++) {
+                System.out.print(" ");
+            }
+            System.out.print(value);
+
+            for (int i=0; i<space; i++) {
+                System.out.print(" ");
+            }
+        } else {
+            for (int i=0; i<space; i++) {
+                System.out.print(" ");
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return word;
     }
 }
+
