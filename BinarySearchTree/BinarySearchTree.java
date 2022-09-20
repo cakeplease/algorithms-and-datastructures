@@ -92,7 +92,7 @@ public class BinarySearchTree {
         }
     }
 
-    //Compile this program and send the words in args like this: java BinarySearchTree her kan du skrive ord med mellomrom
+    //Compile this program and send the words in args like this: java BinarySearchTree.java her kan du skrive ord med mellomrom
     public static void main(String[] args) {
         BinarySearchTree tree = new BinarySearchTree();
         for (String word : args) {
