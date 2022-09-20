@@ -54,7 +54,6 @@ public class BinarySearchTree {
     public void levelOrder(Node root) {
         LinkedList<Node> queue = new LinkedList<>();
         queue.add(root);
-        //double space = 64;
         double space = Math.max(Math.pow(2, getHeight(root)), 64);
         int counter = 0;
         while(!queue.isEmpty()) {
@@ -93,7 +92,7 @@ public class BinarySearchTree {
         }
     }
 
-
+    //Compile this program and send the words in args like this: java BinarySearchTree her kan du skrive ord med mellomrom
     public static void main(String[] args) {
         BinarySearchTree tree = new BinarySearchTree();
         for (String word : args) {
