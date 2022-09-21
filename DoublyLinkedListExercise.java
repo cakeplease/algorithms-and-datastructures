@@ -1,5 +1,3 @@
-import static java.util.Objects.isNull;
-
 public class DoublyLinkedListExercise {
     public static void main(String[] args) {
         //user input
@@ -56,7 +54,7 @@ public class DoublyLinkedListExercise {
                     rest = false;
                 }
 
-                if (!isNull(prev1.prev) && !isNull(prev2.prev)) {
+                if (prev1.prev != null && prev2.prev != null) {
                     prev1 = prev1.getPrev();
                     prev2 = prev2.getPrev();
                 }
