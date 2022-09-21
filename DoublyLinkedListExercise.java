@@ -189,11 +189,25 @@ class DoublyLinkedList {
     public Node getTail() {
         return tail;
     }
+
+    //Remove all zeros from list until there is a non-zero number or just one number in the list
+    public void fixList() {
+        while (head != null && head.data == 0 && listSize>1) {
+            Node tempHead = head;
+            head = head.next;
+            tempHead = null;
+            listSize--;
+            if (head != null) {
+                head.prev = null;
+            }
+        }
+    }
 }
 
 
 class Iterator {
     public static void iterate(DoublyLinkedList list) {
+        list.fixList();
         Node node = list.getHead();
         System.out.print(node.data);
 
