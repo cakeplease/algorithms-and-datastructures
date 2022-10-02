@@ -3,6 +3,7 @@ package HashTableLinkedList;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -11,63 +12,94 @@ import java.util.Scanner;
 public class HashTable {
     public Node[] table;
     int collisions;
+    int elementCount;
 
-    public HashTable() {
-        table = new Node[23];
+    public HashTable(int size) {
         collisions = 0;
+        elementCount = size;
+        if (!isPrime(size)) {
+            while(!isPrime(size)) {
+                size++;
+            }
+        }
+
+        table = new Node[size];
     }
 
-    public int hash(int k) {
-        return k%table.length;
+    //we assume that the number is higher than 3
+    public boolean isPrime(int n) {
+        if (n % 2 == 0 || n % 3 == 0) {
+            return false;
+        }
+        for (int i = 5; i * i <= n; i += 6) {
+            if (n % i == 0 || n % (i + 2) == 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public void add(int k) {
-        int hash = hash(k);
+    public int hash(String name) {
+        int asciiValue = 0;
+        for (int i=0; i < name.length(); i++) {
+            asciiValue += (int)name.charAt(i) * i+1;
+        }
+
+        return asciiValue%table.length;
+    }
+
+    public void add(String name) {
+        int hash = hash(name);
 
         if (table[hash] == null) {
-            table[hash] = new Node(k, null);
+            table[hash] = new Node(name, null);
         } else {
-            Node thisNode = table[hash];
-            while(thisNode.next != null) {
-                thisNode = thisNode.next;
-            }
-            thisNode.next = new Node(k, null);
+            System.out.println("Collision with "+name+" on "+table[hash].data);
+            table[hash] = new Node(name, table[hash]);
+            collisions++;
         }
     }
 
+    public boolean isInTable(String name) {
+        int hash = hash(name);
 
-    public static double expFunc(double x, int n) {
-        if (n==0) {
-            return 1;
-        }
-
-        if (n%2 == 0) {
-            return expFunc(x*x, n/2);
+        if (table[hash] == null) {
+            return false;
         } else {
-            return x * expFunc(x*x, (n-1)/2);
+            Node temp = table[hash];
+            while (temp != null) {
+                if (temp.data.equals(name)) {
+                    return true;
+                } else {
+                    temp = temp.next;
+                }
+            }
         }
+
+        return false;
     }
 
     public static void main(String[] args) throws IOException {
         Scanner sc = new Scanner(Path.of("navn.txt"), StandardCharsets.UTF_8);
-        HashTable hashTable = new HashTable();
 
-        String name;
-        int asciiValue;
+        ArrayList<String> names = new ArrayList<>();
         while (sc.hasNextLine()) {
-
-            name = sc.nextLine();
-            asciiValue = 0;
-            for (int i=0; i < name.length(); i++) {
-                //asciiValue += (int)name.charAt(i) * expFunc(3,i);
-                asciiValue += (int)name.charAt(i) * i+1;
-            }
-            hashTable.add(hashTable.hash(asciiValue));
+            names.add(sc.nextLine());
         }
 
-        //HashTable hashTable = new HashTable();
-        System.out.println(hashTable);
+       HashTable hashTable = new HashTable(names.size());
+       System.out.println("\n-----COLLISIONS-----");
+       for (String name : names) {
+            hashTable.add(name);
+        }
 
+        System.out.println("\n-----HASHTABLE-----"+hashTable+"\n");
+        System.out.println("-----RESULTS-----");
+        System.out.println("Is Katarzyna Szlejter (me) in table?: "+hashTable.isInTable("Katarzyna Szlejter"));
+        System.out.println("Collisions: "+hashTable.collisions);
+        System.out.println("Load factor: "+ ((double)hashTable.elementCount / (double)hashTable.table.length));
+        System.out.println("Collisions per pers: "+((double)hashTable.collisions / (double)hashTable.elementCount));
     }
 
     @Override
@@ -75,14 +107,16 @@ public class HashTable {
         String nodeDatas = "";
         for (Node node : table) {
             if (node == null) {
-                nodeDatas += "null\n";
+                nodeDatas += "\n null";
             } else {
-                nodeDatas += node.data + "\n";
+                nodeDatas += "\n";
+                Node thisNode = node;
 
-               /* while (node.next != null) {
-                    nodeDatas += node.next.data + "\n";
-                    node = node.next;
-                }*/
+                while (thisNode!= null) {
+                    nodeDatas += "->"+thisNode.data;
+                    thisNode = thisNode.next;
+                }
+
             }
         }
         return nodeDatas;
@@ -90,60 +124,16 @@ public class HashTable {
 
     class Node {
         Node next;
-        int data;
+        String data;
 
-        public Node(int data, Node next) {
+        public Node(String data, Node next) {
             this.data = data;
             this.next = next;
-        }
-
-        public int getData() {
-            return data;
-        }
-
-        public Node getNext() {
-            return next;
         }
 
         @Override
         public String toString() {
             return "Data: "+data;
-        }
-    }
-
-    class LinkedList {
-        private int listSize = 0;
-        private Node head = null;
-
-        public LinkedList() {
-            this.head = null;
-            this.listSize = 0;
-        }
-
-        public void setBefore(int data) {
-            head = new Node(data, head);
-            listSize++;
-        }
-
-        public void setAfter(int data) {
-            if (head != null) {
-                Node thisNode = head;
-                while(thisNode.next != null) {
-                    thisNode = thisNode.next;
-                }
-                head = new Node(data,null);
-            } else {
-                head = new Node(data, null);
-                listSize++;
-            }
-        }
-
-        public int getListSize() {
-            return listSize;
-        }
-
-        public Node getHead() {
-            return head;
         }
     }
 
