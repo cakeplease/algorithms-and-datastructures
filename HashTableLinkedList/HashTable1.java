@@ -9,12 +9,12 @@ import java.util.Scanner;
 /**
  * Hash table with linked lists as collision handling
  */
-public class HashTable {
+public class HashTable1 {
     public Node[] table;
     int collisions;
     int elementCount;
 
-    public HashTable(int size) {
+    public HashTable1(int size) {
         collisions = 0;
         elementCount = size;
         if (!isPrime(size)) {
@@ -88,7 +88,7 @@ public class HashTable {
             names.add(sc.nextLine());
         }
 
-       HashTable hashTable = new HashTable(names.size());
+       HashTable1 hashTable = new HashTable1(names.size());
        System.out.println("\n-----COLLISIONS-----");
        for (String name : names) {
             hashTable.add(name);

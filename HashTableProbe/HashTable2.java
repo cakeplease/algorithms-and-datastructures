@@ -7,11 +7,11 @@ import java.util.Random;
 /**
  * Hash table with double hashing as collision handling
  */
-public class HashTable {
+public class HashTable2 {
     public int[] table;
     public int collisions;
 
-    public HashTable(int size) {
+    public HashTable2(int size) {
         collisions = 0;
         if (!isPrime(size)) {
             while(!isPrime(size)) {
@@ -69,16 +69,16 @@ public class HashTable {
             numbers[i] = random.nextInt(Integer.MAX_VALUE-1)+1;
         }
 
-        HashTable hashTable = new HashTable(baseSize);
+        HashTable2 hashTable2 = new HashTable2(baseSize);
         Date start = new Date();
         for (int number : numbers) {
-            hashTable.add(number);
+            hashTable2.add(number);
         }
         Date end = new Date();
 
         System.out.println("My HashTable: time in milliseconds: "+(double)(end.getTime()-start.getTime()));
-        System.out.println("Collisions in my hash table: "+hashTable.collisions);
-        System.out.println("Load factor in my hashtable: "+(double)numbers.length/(double)hashTable.table.length);
+        System.out.println("Collisions in my hash table: "+ hashTable2.collisions);
+        System.out.println("Load factor in my hashtable: "+(double)numbers.length/(double) hashTable2.table.length);
 
         HashMap<Integer, Integer> hashMap = new HashMap<>();
         start = new Date();
