@@ -1,47 +1,58 @@
 package HashTableProbe;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.Scanner;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Random;
 
 /**
- * Hash table with probe sequence and double hashing as collision handling
+ * Hash table with double hashing as collision handling
  */
 public class HashTable {
-
     public int[] table;
+    public int collisions;
 
-    public int hash1(int k, int m) {
-        return k%m;
+    public HashTable(int size) {
+        collisions = 0;
+        if (!isPrime(size)) {
+            while(!isPrime(size)) {
+                size++;
+            }
+        }
+        table = new int[size];
     }
 
-    public int hash2(int k, int m) {
-        return k % (m-1) + 1;
-    }
-
-    public static double expFunc(double x, int n) {
-        if (n==0) {
-            return 1;
+    public boolean isPrime(int n) {
+        if (n % 2 == 0 || n % 3 == 0) {
+            return false;
+        }
+        for (int i = 5; i * i <= n; i += 6) {
+            if (n % i == 0 || n % (i + 2) == 0) {
+                return false;
+            }
         }
 
-        if (n%2 == 0) {
-            return expFunc(x*x, n/2);
-        } else {
-            return x * expFunc(x*x, (n-1)/2);
-        }
+        return true;
     }
 
-    //kollisjonshåndtering med åpen addressering og dobbel hashing
+    public int hash1(int k) {
+        return k % table.length;
+    }
+
+    public int hash2(int k) {
+        return k % (table.length-1) + 1;
+    }
+
     public void add(int k) {
-        int pos = hash1(k, table.length);
+        int pos = hash1(k);
         if (table[pos] == 0) {
             table[pos] = k;
             return;
         }
-        int h2 = hash2(k, table.length);
+        collisions++;
+        int h2 = hash2(k);
         for (;;) {
             pos += h2;
+            pos = pos%table.length;
             if (table[pos] == 0) {
                 table[pos] = k;
                 return;
@@ -49,17 +60,43 @@ public class HashTable {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(Path.of("navn.txt"), StandardCharsets.UTF_8);
-        HashTable hashTable = new HashTable();
-        while (sc.hasNextLine()) {
-            String name = sc.nextLine();
-            int asciiValue = 0;
-            for (int i=1; i <= name.length(); i++) {
-                asciiValue += (int)name.charAt(i) * expFunc(7,i);
-            }
-            hashTable.add(asciiValue);
+    public static void main(String[] args) {
+        int baseSize = 10000000;
+        Random random = new Random();
+        int[] numbers = new int[baseSize];
+
+        for (int i=0; i<baseSize; i++) {
+            numbers[i] = random.nextInt(Integer.MAX_VALUE-1)+1;
         }
+
+        HashTable hashTable = new HashTable(baseSize);
+        Date start = new Date();
+        for (int number : numbers) {
+            hashTable.add(number);
+        }
+        Date end = new Date();
+
+        System.out.println("My HashTable: time in milliseconds: "+(double)(end.getTime()-start.getTime()));
+        System.out.println("Collisions in my hash table: "+hashTable.collisions);
+        System.out.println("Load factor in my hashtable: "+(double)numbers.length/(double)hashTable.table.length);
+
+        HashMap<Integer, Integer> hashMap = new HashMap<>();
+        start = new Date();
+        for (int number : numbers) {
+            hashMap.put(number, number);
+        }
+        end = new Date();
+
+        System.out.println("Java\'s HashMap: time in milliseconds: "+(double)(end.getTime()-start.getTime()));
+    }
+
+    @Override
+    public String toString() {
+        String nodeDatas = "";
+        for (int number : table) {
+            nodeDatas += number + "\n";
+        }
+        return nodeDatas;
     }
 }
 
