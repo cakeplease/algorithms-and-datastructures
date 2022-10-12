@@ -5,15 +5,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 
 public class Graph {
     int N, E;
     Node[] nodes;
+    static boolean[] originStack;
     static ArrayList<Node> visited = new ArrayList<>();
 
-    public Graph() {
+    public Graph(boolean transpose) {
         BufferedReader bufferReader = null;
         //TODO find better name for this variable
         boolean isSet = false;
@@ -26,9 +25,14 @@ public class Graph {
                 if (!isSet) {
                     N = Integer.valueOf(line.split("\\s")[0]);
                     E = Integer.valueOf(line.split("\\s")[1]);
+                    originStack = new boolean[N];
+                    for (boolean value : originStack) {
+                        value = false;
+                    }
 
                     nodes = new Node[N];
                     for (int i=0; i<N; i++) nodes[i] = new Node();
+
                     isSet = true;
 
                 //the rest of lines - graph's content
@@ -36,18 +40,29 @@ public class Graph {
                     int from = Integer.valueOf(line.split("\\s")[0]);
                     int to = Integer.valueOf(line.split("\\s")[1]);
 
+
+                    Edge edge;
                     nodes[to].setValue(to);
                     nodes[from].setValue(from);
-
-                    Edge e = new Edge(nodes[from], nodes[to], nodes[from].edge);
-                    nodes[from].edge = e;
+                    if (transpose) {
+                        edge = new Edge(nodes[to], nodes[from], nodes[to].edge);
+                        nodes[to].edge = edge;
+                    } else {
+                        edge = new Edge(nodes[from], nodes[to], nodes[from].edge);
+                        nodes[from].edge = edge;
+                    }
                     
-                    //System.out.println(e);
+                    //System.out.println(edge);
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void createEdge(Node from, Node to, Edge nextEdge) {
+        Edge e = new Edge(from, to, from.edge);
+        from.edge = e;
     }
 
     public void dfsInit() {
@@ -57,7 +72,7 @@ public class Graph {
         DfsPredecessor.resetTime();
     }
 
-    public void dfsSearch(Node node) {
+    public void dfsSearch(Node node, boolean transpose) {
         DfsPredecessor nodeData = node.data;
         nodeData.foundTime = DfsPredecessor.readTime();
         for (Edge e = node.edge; e != null; e = e.next) {
@@ -65,30 +80,52 @@ public class Graph {
             if (md.foundTime == 0) {
                 md.pred = node;
                 md.distance = nodeData.distance + 1;
-                dfsSearch(e.to);
+                dfsSearch(e.to, transpose);
+
             }
         }
-        visited.add(node);
+
+        if (!transpose) {
+            if (!originStack[node.value]) {
+                originStack[node.value] = true;
+            }
+        }
+
+        if (!Arrays.asList(visited).contains(node) && transpose) {
+            visited.add(node);
+        }
+
         nodeData.finishedTime = DfsPredecessor.readTime();
     }
 
     public void dfs() {
         for (Node node : nodes) {
-            dfsInit();
-            (node.data).distance = 0;
-            dfsSearch(node);
+            if (!originStack[node.value]) {
+                dfsInit();
+                (node.data).distance = 0;
+                dfsSearch(node, false);
+            }
+        }
+    }
+
+    public Graph transposeAndDFS() {
+        Graph transposeGraph = new Graph(true);
+
+        for (int i = 0; i < nodes.length; i++) {
+            for (int j= 0; j<transposeGraph.nodes.length; j++) {
+                if (nodes[i].value == transposeGraph.nodes[i].value) {
+                    transposeGraph.dfsInit();
+                    (transposeGraph.nodes[i].data).distance = 0;
+                    transposeGraph.dfsSearch(transposeGraph.nodes[i], true);
+                }
+            }
         }
 
+        return transposeGraph;
     }
 
-
-    public void transpose() {
-
-    }
 
     public void reverseSort() {
-        //Arrays.sort(nodes, (Node s1, Node s2) -> s1.data.getFinishedTime().compareTo(s2.data.getFinishedTime()));
-
         Arrays.sort(nodes, (b1, b2) -> {
             if (b1.data.getFinishedTime() < b2.data.getFinishedTime()) {
                 return 1;
@@ -101,23 +138,21 @@ public class Graph {
     }
 
     public static void main(String[] args) {
-        Graph newGraph = new Graph();
-        newGraph.dfs();
+        Graph normalGraph = new Graph(false);
+        normalGraph.dfs();
+        normalGraph.reverseSort();
+        Graph transposeGraph = normalGraph.transposeAndDFS();
 
-        newGraph.reverseSort();
-        newGraph.transpose();
+        /*  for (Node node : visited) {
+            System.out.println(node);
+        }*/
 
-        for (Node node : newGraph.nodes) {
+
+        for (Node node : normalGraph.nodes) {
             System.out.println(node);
         }
     }
 
-    /*@Override
-    public String toString() {
-        String nodeDatas = "";
-
-        return nodeDatas;
-    }*/
 }
 class Predecessor {
     int distance;
