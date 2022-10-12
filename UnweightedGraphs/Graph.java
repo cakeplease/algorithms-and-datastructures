@@ -3,47 +3,54 @@ package UnweightedGraphs;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Graph {
     int N, E;
     Node[] nodes;
-    static boolean[] originStack;
-    static ArrayList<Node> visited = new ArrayList<>();
+    boolean[] visited;
+    static String filename = "ø6g6.txt";
 
     public Graph(boolean transpose) {
-        BufferedReader bufferReader = null;
-        //TODO find better name for this variable
-        boolean isSet = false;
+        BufferedReader bufferReader;
+        boolean isNotFirstLine = false;
         try {
-            bufferReader = new BufferedReader(new FileReader("oppg6.txt"));
-            String line = "";
-
+            bufferReader = new BufferedReader(new FileReader(filename));
+            String line;
+            int index;
+            //read from file
             while ((line = bufferReader.readLine()) != null) {
-                //first line - N (node count) and E (edge count) values
-                if (!isSet) {
+                //check first line for N-nodes and E-edges
+                if (!isNotFirstLine) {
                     N = Integer.valueOf(line.split("\\s")[0]);
                     E = Integer.valueOf(line.split("\\s")[1]);
-                    originStack = new boolean[N];
-                    for (boolean value : originStack) {
+
+                    visited = new boolean[N];
+                    for (boolean value : visited) {
                         value = false;
                     }
 
                     nodes = new Node[N];
-                    for (int i=0; i<N; i++) nodes[i] = new Node();
+                    for (int i=0; i<N; i++) {
+                        nodes[i] = new Node();
+                        nodes[i].value = i;
+                    }
 
-                    isSet = true;
+                    isNotFirstLine = true;
 
                 //the rest of lines - graph's content
                 } else {
-                    int from = Integer.valueOf(line.split("\\s")[0]);
-                    int to = Integer.valueOf(line.split("\\s")[1]);
+                    //trick for handling different whitespaces
+                    index = 0;
+                    if (line.split("\\s+")[0].isEmpty()) {
+                        index = index +1;
+                    }
 
+                    int from = Integer.valueOf(line.split("\\s+")[index]);
+                    int to = Integer.valueOf(line.split("\\s+")[index+1]);
 
                     Edge edge;
-                    nodes[to].setValue(to);
-                    nodes[from].setValue(from);
+
                     if (transpose) {
                         edge = new Edge(nodes[to], nodes[from], nodes[to].edge);
                         nodes[to].edge = edge;
@@ -51,18 +58,12 @@ public class Graph {
                         edge = new Edge(nodes[from], nodes[to], nodes[from].edge);
                         nodes[from].edge = edge;
                     }
-                    
-                    //System.out.println(edge);
+
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void createEdge(Node from, Node to, Edge nextEdge) {
-        Edge e = new Edge(from, to, from.edge);
-        from.edge = e;
     }
 
     public void dfsInit() {
@@ -73,6 +74,10 @@ public class Graph {
     }
 
     public void dfsSearch(Node node, boolean transpose) {
+        visited[node.value] = true;
+        if (transpose) {
+            System.out.print(node.value+" ");
+        }
         DfsPredecessor nodeData = node.data;
         nodeData.foundTime = DfsPredecessor.readTime();
         for (Edge e = node.edge; e != null; e = e.next) {
@@ -81,49 +86,41 @@ public class Graph {
                 md.pred = node;
                 md.distance = nodeData.distance + 1;
                 dfsSearch(e.to, transpose);
-
             }
-        }
-
-        if (!transpose) {
-            if (!originStack[node.value]) {
-                originStack[node.value] = true;
-            }
-        }
-
-        if (!Arrays.asList(visited).contains(node) && transpose) {
-            visited.add(node);
         }
 
         nodeData.finishedTime = DfsPredecessor.readTime();
     }
 
     public void dfs() {
+        dfsInit();
+
         for (Node node : nodes) {
-            if (!originStack[node.value]) {
-                dfsInit();
+            if (!visited[node.value]) {
                 (node.data).distance = 0;
                 dfsSearch(node, false);
             }
         }
     }
 
-    public Graph transposeAndDFS() {
+    public int transposeAndDFS() {
         Graph transposeGraph = new Graph(true);
-
-        for (int i = 0; i < nodes.length; i++) {
-            for (int j= 0; j<transposeGraph.nodes.length; j++) {
-                if (nodes[i].value == transposeGraph.nodes[i].value) {
-                    transposeGraph.dfsInit();
-                    (transposeGraph.nodes[i].data).distance = 0;
-                    transposeGraph.dfsSearch(transposeGraph.nodes[i], true);
-                }
+        transposeGraph.dfsInit();
+        int index;
+        int componentCounter = 1;
+        for (Node node : nodes) {
+            index = node.value;
+            if (!transposeGraph.visited[index]) {
+                transposeGraph.nodes[index].data.distance = 0;
+                System.out.print("Kompontent "+componentCounter+": ");
+                transposeGraph.dfsSearch(transposeGraph.nodes[index], true);
+                System.out.println();
+                componentCounter++;
             }
         }
 
-        return transposeGraph;
+        return componentCounter-1;
     }
-
 
     public void reverseSort() {
         Arrays.sort(nodes, (b1, b2) -> {
@@ -141,16 +138,9 @@ public class Graph {
         Graph normalGraph = new Graph(false);
         normalGraph.dfs();
         normalGraph.reverseSort();
-        Graph transposeGraph = normalGraph.transposeAndDFS();
-
-        /*  for (Node node : visited) {
-            System.out.println(node);
-        }*/
-
-
-        for (Node node : normalGraph.nodes) {
-            System.out.println(node);
-        }
+        System.out.println("\nKomponentene til grafen "+filename+": \n");
+        int componentCounter = normalGraph.transposeAndDFS();
+        System.out.println("\nGrafen har "+componentCounter+" sterkt sammenhengende kompontent(er).");
     }
 
 }
@@ -194,10 +184,9 @@ class Node {
         value = val;
     }
 
-
     @Override
     public String toString() {
-        return "Node: "+value+" Data: "+data;
+        return "Node: "+value;
     }
 }
 
