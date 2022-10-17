@@ -43,7 +43,7 @@ public class HashTable1 {
     public int hash(String name) {
         int asciiValue = 0;
         for (int i=0; i < name.length(); i++) {
-            asciiValue += (int)name.charAt(i) * i+1;
+            asciiValue += (int)name.charAt(i) * (i+1);
         }
 
         return asciiValue%table.length;
