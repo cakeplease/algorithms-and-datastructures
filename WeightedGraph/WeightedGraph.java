@@ -8,6 +8,7 @@ import java.util.*;
 public class WeightedGraph {
     String filename = "vg1.txt";
     int nodeCount, edgeCount;
+    PriorityQueue<Node> pq;
     Node[] nodes;
 
     public WeightedGraph() throws IOException {
@@ -15,57 +16,82 @@ public class WeightedGraph {
         StringTokenizer st = new StringTokenizer(bufferReader.readLine());
         nodeCount = Integer.parseInt(st.nextToken());
         nodes = new Node[nodeCount];
-
-        for (int i=0; i<nodeCount; i++) {
-            nodes[i] = new Node();
-            nodes[i].value = i;
+        for (int i=0; i < nodeCount; i++) {
+            nodes[i] = new Node(i);
         }
 
         edgeCount = Integer.parseInt(st.nextToken());
-
-        for (int i=0; i<edgeCount; i++) {
+        for (int i=0; i < edgeCount; i++) {
             st = new StringTokenizer(bufferReader.readLine());
             int from = Integer.parseInt(st.nextToken());
             int to = Integer.parseInt(st.nextToken());
             int weight = Integer.parseInt(st.nextToken());
-            System.out.println(nodes[from].edge);
-            Edge edge = new Edge(nodes[from], nodes[to], nodes[from].edge, weight);
+            Edge edge = new Edge(nodes[to], nodes[from].edge, weight);
             nodes[from].edge = edge;
         }
-
-    }
-
-    public static void main(String[] args) throws IOException{
-        WeightedGraph graph = new WeightedGraph();
-        graph.dijkstra(graph.nodes[0]);
-        //System.out.println(graph);
     }
 
     public void dijkstra(Node startNode) {
+        startNode.distance = 0;
+        pq = new PriorityQueue<>(nodeCount, (a, b) -> ((Node)a).distance - ((Node)b).distance);
+        for (int i = 0; i < nodeCount; i++) {
+            pq.add(nodes[i]);
+        }
 
+        for (int i = nodeCount; i > 1; i--) {
+            Node n = pq.poll();
+            for(Edge e = n.edge; e != null; e = e.next) {
+                if (e.to.distance > n.distance + e.weight) {
+                    e.to.distance = n.distance + e.weight;
+                    e.to.pred = n;
+                    pq.remove(e.to);
+                    pq.add(e.to);
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        WeightedGraph graph = new WeightedGraph();
+        int startIndex = 1;
+        graph.dijkstra(graph.nodes[startIndex]);
+
+        System.out.format("%-7s%10s%12s%n", "Node", "Forgjenger", "Distanse");
+        for (int i = 0; i < graph.nodeCount; i++) {
+            if (graph.nodes[i].distance != Node.infinity) {
+                String from = (graph.nodes[i].value == startIndex) ? "Start": String.valueOf(graph.nodes[i].pred.value);
+                System.out.format("%-7s%10s%12s%n", graph.nodes[i].value,from,(graph.nodes[i].distance));
+            } else {
+                System.out.format("%-7s%10s%12s%n",graph.nodes[i].value,"","Nåes ikke");
+            }
+        }
+    }
+}
+
+class Node {
+    Edge edge;
+    int value;
+    int distance;
+    Node pred;
+    static int infinity = 1000000000;
+
+    public Node(int val) {
+        value = val;
+        distance = infinity;
     }
 
     @Override
     public String toString() {
-        String nodesContent = "";
-
-        for (Node node : nodes) {
-            nodesContent += node+"\n";
-        }
-
-        return nodesContent;
+        return "Node: "+value;
     }
-
 }
 
 class Edge {
     Edge next;
-    Node from;
     Node to;
     int weight;
 
-    public Edge(Node f, Node t, Edge nxt, int w) {
-        from = f;
+    public Edge(Node t, Edge nxt, int w) {
         to = t;
         next = nxt;
         weight = w;
@@ -73,108 +99,8 @@ class Edge {
 
     @Override
     public String toString() {
-        return from+" -> "+to+ " Weight: "+weight;
+        return to+ " Weight: "+weight;
     }
 }
 
 
-class Node {
-    Edge edge;
-    int value;
-    int distance;
-    Node predecessor;
-    boolean isVisited;
-
-    public Node() {
-        distance = Integer.MAX_VALUE;
-        isVisited = false;
-        predecessor = null;
-    }
-
-    public void setValue(int val) {
-        value = val;
-    }
-
-    @Override
-    public String toString() {
-        //return "Node: "+value + " Distance: "+distance + " Predecessor: "+predecessor;
-        return "Node: "+value;
-    }
-}
-
-/*class Heap {
-    int length;
-    Node nodes[];
-
-    public Heap(Node[] n) {
-        nodes = n;
-        length = n.length;
-        heapSort();
-    }
-
-    public void heapSort() {
-        createHeap();
-        int l = length;
-        while(length > 1) {
-            Node x = getMin();
-            nodes[length] = x;
-        }
-        length = l;
-    }
-
-    public void createHeap() {
-        int i = length / 2;
-        while(i--> 0) {
-            fixHeap(i);
-        }
-    }
-
-    int over(int i) {
-        return (i-1)>>1;
-    }
-
-    int left(int i) {
-        return (i<<1)+1;
-    }
-
-    int right(int i) {
-        return (i+1)<<1;
-    }
-
-    public static void swap(Node[] t, int i, int j) {
-        Node k = t[j];
-        t[j] = t[i];
-        t[i] = k;
-    }
-
-    public Node getMin() {
-        Node min = nodes[0];
-        nodes[0] = nodes[--length];
-        fixHeap(0);
-        return min;
-    }
-
-    public void fixHeap(int i) {
-        int m = left(i);
-        if (m < length) {
-            int h = m+1;
-            if (h < length && nodes[h].distance < nodes[m].distance) {
-                m=h;
-            }
-            if (nodes[m].distance < nodes[i].distance) {
-                swap(nodes,i,m);
-                fixHeap(m);
-            }
-        }
-    }
-
-    @Override
-    public String toString() {
-        String nodesContent = "";
-        for (Node node : nodes) {
-            nodesContent+= node+"\n";
-        }
-        return "Heap size: "+length+"\n" +
-                "Content: \n" + nodesContent;
-    }
-}*/
