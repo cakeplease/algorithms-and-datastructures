@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class WeightedGraph {
-    String filename = "vg1.txt";
+    String filename = "vg5.txt";
     int nodeCount, edgeCount;
     PriorityQueue<Node> pq;
     Node[] nodes;
