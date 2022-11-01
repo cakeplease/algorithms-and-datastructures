@@ -24,7 +24,7 @@ public class BinaryTree {
 
     //TODO change insert method accordingly to exercise
     public Node insert(Node root, char character, int frequency, Node parent) {
-        /*if (root == null) {
+      /*  if (root == null) {
             root = new Node(character, frequency, parent);
             return root;
         } else if (frequency.compareTo(root.frequency) < 0) {
@@ -60,6 +60,11 @@ class Node {
         }
 
         return depthCounter;
+    }
+
+    @Override
+    public String toString() {
+        return "Character: "+character +" Frequency: "+frequency+"\n";
     }
 }
 
