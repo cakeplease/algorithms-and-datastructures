@@ -1,15 +1,39 @@
 package HuffmanAlgorithm;
 
-public class BinaryTree {
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
+public class HuffmanTre {
     Node root;
+    PriorityQueue<Node> pq;
+    Node node;
 
-    public BinaryTree() {
+    public HuffmanTre(int frequencies[]) {
         root = null;
+        int pqCapacity = 0;
+        for (int i = 0; i<frequencies.length; i++) {
+            if (frequencies[i] != 0) {
+                pqCapacity++;
+            }
+        }
+
+        pq = new PriorityQueue<>(pqCapacity,Comparator.comparingInt(a -> ((Node) a).frequency));
+
+        for (int i = 0; i<frequencies.length; i++) {
+            if (frequencies[i] != 0) {
+                node = new Node((char)i, frequencies[i], null);
+                pq.add(node);
+            }
+        }
+
+        for (int i = 0; i<pqCapacity; i++) {
+
+            System.out.println(pq.poll());
+        }
+
+
     }
 
-    public void insert(char character, int frequency) {
-        root = insert(root, character, frequency, null);
-    }
 
     public int getHeight(Node node) {
         if (node == null)
@@ -23,19 +47,15 @@ public class BinaryTree {
     }
 
     //TODO change insert method accordingly to exercise
-    public Node insert(Node root, char character, int frequency, Node parent) {
-      /*  if (root == null) {
-            root = new Node(character, frequency, parent);
-            return root;
-        } else if (frequency.compareTo(root.frequency) < 0) {
-            root.left = insert(root.left, character, frequency, root);
+    public void insert(Node root, char character, int frequency) {
 
-        } else if (frequency.compareTo(root.frequency) > 0) {
-            root.right = insert(root.right, character, frequency, root);
-        }*/
-        return root;
+        //while loop så lenge lista er på over 2
+        //get 2 nodes with lowest freq and make an extra root node with \0
+        // connect root nodes to a tree
+
     }
 }
+
 
 class Node {
     char character;
