@@ -1,44 +1,101 @@
 package HuffmanAlgorithm;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
-public class HuffmanTre {
+public class HuffmanTree {
     Node root;
     PriorityQueue<Node> pq;
-    Node node;
+    int maxTreeHeight;
 
-    public HuffmanTre(int frequencies[]) {
+    public HuffmanTree(int frequencies[]) {
         root = null;
         int pqCapacity = 0;
+
+        //find size of priority queue needed, based on frequency table
         for (int i = 0; i<frequencies.length; i++) {
             if (frequencies[i] != 0) {
                 pqCapacity++;
             }
         }
 
-        pq = new PriorityQueue<>(pqCapacity,Comparator.comparingInt(a -> ((Node) a).frequency));
-
+        //create nodes and put them in priority queue in ascending frequency order
+        pq = new PriorityQueue<>(pqCapacity, Comparator.comparingInt(a -> a.frequency));
         for (int i = 0; i<frequencies.length; i++) {
             if (frequencies[i] != 0) {
-                node = new Node((char)i, frequencies[i], null);
-                pq.add(node);
+                pq.add(new Node((char)i, frequencies[i], null));
             }
         }
 
-        for (int i = 0; i<pqCapacity; i++) {
+        //make huffman tree
+        while (pq.size() > 2) {
 
-            System.out.println(pq.poll());
+            root = connectNodes(pq.poll(),pq.poll());
+            pq.add(root);
         }
 
+        //Connect last two nodes
+        root = connectNodes(pq.poll(),pq.poll());
 
+       // System.out.println(root);
+        maxTreeHeight = getHeight(root);
+      //  System.out.println("Max height of the tree: "+maxTreeHeight);
     }
 
 
+    //this is wrong because it saves all paths, not only to the char we're searching for
+    /*public void find(Node node, char charToFind, String bit) {
+        if (node != null && (charToFind!=node.character)) {
+            find(node.left, charToFind, "0");
+            find(node.right, charToFind, "1");
+        }
+
+    }*/
+
+
+    //we need dfs instead
+    //find and save the path from root to a given node
+    /*public String dfs(Node startNode, Node target) {
+
+    }*/
+
+    public String DFS(Node n, char c){
+        if(n.character == c){
+            return "";
+        }
+        if(n.left == null && n.right == null) return null;
+        String x;
+        if((x = DFS(n.left, c)) != null && n.left != null) {
+            //if(n.b != 2) return n.b+x;
+            return "0";
+        }
+        if((x = DFS(n.right, c)) != null && n.right != null) {
+            //if(n.b != 2) return n.b+x;
+            return "1";
+        }
+        return null;
+    }
+
+    public void encode(DataInputStream stream) throws IOException {
+        while (stream.available() > 0) {
+            char character = (char)stream.readUnsignedByte();
+            System.out.println("Character: "+character+" Sq: "+DFS(root, character));
+            //System.out.println("Char: "+character+" Seq: "+s);
+        }
+
+    }
+
+    public void decode() {
+        //https://www.geeksforgeeks.org/huffman-coding-greedy-algo-3/
+    }
+
+    //use this to determine max size of bit string? for example: height=3 on root means the maximum of bits for a char is 3 -> 000, or 001 etc.
     public int getHeight(Node node) {
-        if (node == null)
+        if (node == null) {
             return -1;
-        else {
+        } else {
             int leftHeight = getHeight(node.left);
             int rightHeight = getHeight(node.right);
 
@@ -46,13 +103,14 @@ public class HuffmanTre {
         }
     }
 
-    //TODO change insert method accordingly to exercise
-    public void insert(Node root, char character, int frequency) {
+    public Node connectNodes(Node node1, Node node2) {
+        Node root = new Node('\0', node1.frequency+node2.frequency, null);
+        root.left = node1;
+        root.right = node2;
 
-        //while loop så lenge lista er på over 2
-        //get 2 nodes with lowest freq and make an extra root node with \0
-        // connect root nodes to a tree
-
+        node1.parent = root;
+        node2.parent = root;
+        return root;
     }
 }
 

@@ -6,30 +6,26 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 
 public class HuffmanCompress {
-    //extended ascii table
     int frequencies[] = new int[256];
     PriorityQueue<Node> pq;
     Node node;
 
     public HuffmanCompress(String filename) throws IOException {
         DataInputStream dataStream = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
-        int pqCapacity = 0;
         //read frequencies and put those in frequencies-array
         while (dataStream.available() > 0) {
             int asciiValue = dataStream.readUnsignedByte();
-            //System.out.println(asciiValue);
-            //pqCapacity++;
-            if (frequencies[asciiValue] == 0) {
-                pqCapacity++;
-            }
             frequencies[asciiValue] += 1;
         }
 
+        HuffmanTree tree = new HuffmanTree(frequencies);
 
+        //TODO generate code based on huffman tree and save it in a file with the frequency table
 
-        //BinaryTree tree = new BinaryTree();
-        //from frequency-array, make nodes and put those in priority queue based on frequency
-        //insert nodes into binary tree based on queue
+        tree.encode(new DataInputStream(new BufferedInputStream(new FileInputStream(filename))));
+
+        //DataOutputStream newFile = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("encodedHuffman.txt")));
+        //newFile.writeBytes(String.valueOf(frequencies));
 
 
     }
