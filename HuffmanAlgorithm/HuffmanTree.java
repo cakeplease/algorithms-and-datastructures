@@ -1,8 +1,7 @@
 package HuffmanAlgorithm;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Comparator;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 public class HuffmanTree {
@@ -21,70 +20,65 @@ public class HuffmanTree {
             }
         }
 
-        //create nodes and put them in priority queue in ascending frequency order
-        pq = new PriorityQueue<>(pqCapacity, Comparator.comparingInt(a -> a.frequency));
+        //create nodes and put them in priority queue in ascending frequency order, if the frequency is equal, sort based on alphabetical order
+        pq = new PriorityQueue<>(pqCapacity, (b1, b2) -> {
+            if (b1.frequency < b2.frequency) {
+                return -1;
+            } else if (b1.frequency > b2.frequency) {
+                return 1;
+            } else {
+                if (b1.character > b2.character) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
+
         for (int i = 0; i<frequencies.length; i++) {
             if (frequencies[i] != 0) {
                 pq.add(new Node((char)i, frequencies[i], null));
             }
         }
 
-        //make huffman tree
+        //create huffman tree
         while (pq.size() > 2) {
-
             root = connectNodes(pq.poll(),pq.poll());
             pq.add(root);
         }
 
-        //Connect last two nodes
+        //connect last two nodes
         root = connectNodes(pq.poll(),pq.poll());
 
-       // System.out.println(root);
         maxTreeHeight = getHeight(root);
-      //  System.out.println("Max height of the tree: "+maxTreeHeight);
     }
 
+    public static boolean findPath(Node root, ArrayList<String> sequence, char characterToFind, String bit) {
+        //could not find path
+        if (root==null) return false;
+        if (!bit.isEmpty()) sequence.add(bit);
+        if (root.character == characterToFind) return true;
+        if (findPath(root.left, sequence, characterToFind, "0") || findPath(root.right, sequence, characterToFind, "1")) return true;
 
-    //this is wrong because it saves all paths, not only to the char we're searching for
-    /*public void find(Node node, char charToFind, String bit) {
-        if (node != null && (charToFind!=node.character)) {
-            find(node.left, charToFind, "0");
-            find(node.right, charToFind, "1");
-        }
-
-    }*/
-
-
-    //we need dfs instead
-    //find and save the path from root to a given node
-    /*public String dfs(Node startNode, Node target) {
-
-    }*/
-
-    public String DFS(Node n, char c){
-        if(n.character == c){
-            return "";
-        }
-        if(n.left == null && n.right == null) return null;
-        String x;
-        if((x = DFS(n.left, c)) != null && n.left != null) {
-            //if(n.b != 2) return n.b+x;
-            return "0";
-        }
-        if((x = DFS(n.right, c)) != null && n.right != null) {
-            //if(n.b != 2) return n.b+x;
-            return "1";
-        }
-        return null;
+        //wrong path, remove last bit from the sequence
+        sequence.remove(sequence.size()-1);
+        return false;
     }
 
     public void encode(DataInputStream stream) throws IOException {
+
+
+        ArrayList sequence;
         while (stream.available() > 0) {
             char character = (char)stream.readUnsignedByte();
-            System.out.println("Character: "+character+" Sq: "+DFS(root, character));
-            //System.out.println("Char: "+character+" Seq: "+s);
+            sequence = new ArrayList<>();
+            if (findPath(root, sequence, character,"")) {
+                String listString = String.join("", sequence);
+                //System.out.println(listString);
+                long seq = Long.parseLong(listString);
+                System.out.println(seq);
+            }
         }
-
     }
 
     public void decode() {
@@ -113,7 +107,6 @@ public class HuffmanTree {
         return root;
     }
 }
-
 
 class Node {
     char character;

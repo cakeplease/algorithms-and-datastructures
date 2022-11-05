@@ -18,6 +18,8 @@ public class HuffmanCompress {
             frequencies[asciiValue] += 1;
         }
 
+        saveFrequencyTable(frequencies);
+
         HuffmanTree tree = new HuffmanTree(frequencies);
 
         //TODO generate code based on huffman tree and save it in a file with the frequency table
@@ -30,9 +32,19 @@ public class HuffmanCompress {
 
     }
 
-    public static void main(String[] args) throws FileNotFoundException,IOException {
+    public void saveFrequencyTable(int[] frequencyTable) throws FileNotFoundException {
+        //save frequency table in output file
+        DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("encodedHuffman.txt")));
+
+        for (int i = 0; i< frequencyTable.length; i++) {
+            //output.write();
+        }
+
+    }
+
+    public static void main(String[] args) throws IOException {
         //HuffmanCompress hc = new HuffmanCompress(args[0]);  use this when later running in terminal
-        HuffmanCompress hc = new HuffmanCompress("test.txt");
+        HuffmanCompress hc = new HuffmanCompress("navn.txt");
     }
 
 }
