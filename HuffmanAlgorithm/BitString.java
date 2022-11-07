@@ -2,13 +2,18 @@ package HuffmanAlgorithm;
 //en klasse for å sende bit strings til fil
 public class BitString {
     //hvor mange av bitene som er med
-    long bitSequence;
-    int bitLength;
+    long sequence;
+    int length;
 
 
     public BitString(long bitSeq, int actualLength) {
-        bitSequence = bitSeq;
-        bitLength = actualLength;
+        sequence = bitSeq;
+        length = actualLength;
+    }
+
+    @Override
+    public String toString() {
+        return "Bit sequence: "+Long.toBinaryString(sequence)+" Sequence length: "+length;
     }
 
 

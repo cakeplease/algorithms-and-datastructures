@@ -34,7 +34,6 @@ public class HuffmanCompress {
 
     public void saveFrequencyTable(int[] frequencyTable) throws FileNotFoundException {
         //save frequency table in output file
-        DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("encodedHuffman.txt")));
 
         for (int i = 0; i< frequencyTable.length; i++) {
             //output.write();

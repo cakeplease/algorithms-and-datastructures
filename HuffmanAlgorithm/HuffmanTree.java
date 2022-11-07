@@ -66,19 +66,38 @@ public class HuffmanTree {
     }
 
     public void encode(DataInputStream stream) throws IOException {
+        ArrayList<String> sequence;
+        ArrayList<String> allSequences = new ArrayList<>();
+        BitsToFile bitsToFile = new BitsToFile();
 
-
-        ArrayList sequence;
         while (stream.available() > 0) {
             char character = (char)stream.readUnsignedByte();
             sequence = new ArrayList<>();
             if (findPath(root, sequence, character,"")) {
-                String listString = String.join("", sequence);
-                //System.out.println(listString);
-                long seq = Long.parseLong(listString);
-                System.out.println(seq);
+                //System.out.println(sequence);
+
+                //String listString = String.join("", sequence);
+
+                //long seq = Long.parseLong(listString, 2);
+                //System.out.println(Long.toBinaryString(seq));
+                //System.out.println(seq);
+
+                //BitString bitString = new BitString(seq, listString.length());
+
+                for (String bit : sequence) {
+                    allSequences.add(bit);
+                }
+
+
             }
         }
+
+        //System.out.println(allSequences);
+        bitsToFile.addSequenceArray(allSequences);
+        bitsToFile.readBytes();
+       // System.out.println(bitsToFile.readBytes());
+
+
     }
 
     public void decode() {
