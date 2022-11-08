@@ -7,9 +7,11 @@ import java.util.PriorityQueue;
 public class HuffmanTree {
     Node root;
     PriorityQueue<Node> pq;
-    int maxTreeHeight;
 
-    public HuffmanTree(int frequencies[]) {
+    int[] frequencies;
+
+    public HuffmanTree(int freqTable[]) {
+        frequencies = freqTable;
         root = null;
         int pqCapacity = 0;
 
@@ -49,8 +51,6 @@ public class HuffmanTree {
 
         //connect last two nodes
         root = connectNodes(pq.poll(),pq.poll());
-
-        maxTreeHeight = getHeight(root);
     }
 
     public static boolean findPath(Node root, ArrayList<String> sequence, char characterToFind, String bit) {
@@ -65,59 +65,57 @@ public class HuffmanTree {
         return false;
     }
 
-    public void encode(DataInputStream stream) throws IOException {
+
+    public void encode(String fileIn, String fileOut) throws IOException {
+        DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(fileIn)));
         ArrayList<String> sequence;
         ArrayList<String> allSequences = new ArrayList<>();
-        BitsToFile bitsToFile = new BitsToFile();
 
         while (stream.available() > 0) {
             char character = (char)stream.readUnsignedByte();
             sequence = new ArrayList<>();
             if (findPath(root, sequence, character,"")) {
-                //System.out.println(sequence);
-
-                //String listString = String.join("", sequence);
-
-                //long seq = Long.parseLong(listString, 2);
-                //System.out.println(Long.toBinaryString(seq));
-                //System.out.println(seq);
-
-                //BitString bitString = new BitString(seq, listString.length());
-
                 for (String bit : sequence) {
                     allSequences.add(bit);
                 }
-
-
             }
         }
+        stream.close();
 
-        //System.out.println(allSequences);
-        bitsToFile.addSequenceArray(allSequences);
-        bitsToFile.readBytes();
-       // System.out.println(bitsToFile.readBytes());
-
-
+        BitsToFile bitsToFile = new BitsToFile(allSequences, frequencies);
+        bitsToFile.writeToFile(fileOut);
     }
 
-    public void decode() {
-
-    }
-
-    //use this to determine max size of bit string? for example: height=3 on root means the maximum of bits for a char is 3 -> 000, or 001 etc.
-    public int getHeight(Node node) {
-        if (node == null) {
-            return -1;
-        } else {
-            int leftHeight = getHeight(node.left);
-            int rightHeight = getHeight(node.right);
-
-            return Math.max(leftHeight,rightHeight) + 1;
+    public void decode(String decodedFilePath, ArrayList<String> encodedSequence, int validBitCount) throws IOException {
+        DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(decodedFilePath)));
+        //decode function for traversing the tree and decoding huffman code
+        ArrayList<Byte> bytesToWrite = new ArrayList<>();
+        String text = "";
+        Node currentNode = root;
+        for (int i=0;i<validBitCount;i++) {
+            if (encodedSequence.get(i).equals("0")) {
+                currentNode = currentNode.left;
+            } else {
+                currentNode = currentNode.right;
+            }
+            if (currentNode.left == null && currentNode.right == null) {
+                int test = currentNode.character;
+                bytesToWrite.add((byte)currentNode.character);
+                //text += currentNode.character;
+                currentNode = root;
+            }
         }
+        //System.out.println(text);
+        //output.write(text.getBytes());
+        for (byte b : bytesToWrite) {
+            output.write(b);
+        }
+        output.close();
+
     }
 
     public Node connectNodes(Node node1, Node node2) {
-        Node root = new Node('\0', node1.frequency+node2.frequency, null);
+        Node root = new Node('\u0000', node1.frequency+node2.frequency, null);
         root.left = node1;
         root.right = node2;
 
@@ -140,16 +138,6 @@ class Node {
         this.left = null;
         this.right = null;
         this.parent = parent;
-    }
-
-    public static int getDepth(Node node) {
-        int depthCounter = -1;
-        while (node != null) {
-            node = node.parent;
-            depthCounter++;
-        }
-
-        return depthCounter;
     }
 
     @Override
