@@ -101,7 +101,7 @@ public class HuffmanTree {
     }
 
     public void decode() {
-        //https://www.geeksforgeeks.org/huffman-coding-greedy-algo-3/
+
     }
 
     //use this to determine max size of bit string? for example: height=3 on root means the maximum of bits for a char is 3 -> 000, or 001 etc.

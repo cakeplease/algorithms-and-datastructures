@@ -43,7 +43,7 @@ public class HuffmanCompress {
 
     public static void main(String[] args) throws IOException {
         //HuffmanCompress hc = new HuffmanCompress(args[0]);  use this when later running in terminal
-        HuffmanCompress hc = new HuffmanCompress("navn.txt");
+
     }
 
 }
