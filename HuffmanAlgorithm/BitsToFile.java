@@ -65,7 +65,6 @@ public class BitsToFile {
         ArrayList<Byte> encodedHuffman = readBytes();
         output.writeInt(encodedHuffman.size());
 
-
         for (byte b : encodedHuffman) {
             output.writeByte(b);
         }

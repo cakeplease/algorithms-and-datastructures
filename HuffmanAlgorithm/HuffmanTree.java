@@ -29,6 +29,14 @@ public class HuffmanTree {
             } else if (b1.frequency > b2.frequency) {
                 return 1;
             } else {
+
+                if (b1.character == null) {
+                    return -1;
+                }
+                if (b2.character == null) {
+                    return 1;
+                }
+
                 if (b1.character > b2.character) {
                     return 1;
                 } else {
@@ -57,7 +65,7 @@ public class HuffmanTree {
         //could not find path
         if (root==null) return false;
         if (!bit.isEmpty()) sequence.add(bit);
-        if (root.character == characterToFind) return true;
+        if (root.character != null && (root.character == characterToFind)) return true;
         if (findPath(root.left, sequence, characterToFind, "0") || findPath(root.right, sequence, characterToFind, "1")) return true;
 
         //wrong path, remove last bit from the sequence
@@ -90,7 +98,6 @@ public class HuffmanTree {
         DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(decodedFilePath)));
         //decode function for traversing the tree and decoding huffman code
         ArrayList<Byte> bytesToWrite = new ArrayList<>();
-        String text = "";
         Node currentNode = root;
         for (int i=0;i<validBitCount;i++) {
             if (encodedSequence.get(i).equals("0")) {
@@ -99,14 +106,11 @@ public class HuffmanTree {
                 currentNode = currentNode.right;
             }
             if (currentNode.left == null && currentNode.right == null) {
-                int test = currentNode.character;
-                bytesToWrite.add((byte)currentNode.character);
-                //text += currentNode.character;
+                bytesToWrite.add((byte)(char)currentNode.character);
                 currentNode = root;
             }
         }
-        //System.out.println(text);
-        //output.write(text.getBytes());
+
         for (byte b : bytesToWrite) {
             output.write(b);
         }
@@ -115,7 +119,7 @@ public class HuffmanTree {
     }
 
     public Node connectNodes(Node node1, Node node2) {
-        Node root = new Node('\u0000', node1.frequency+node2.frequency, null);
+        Node root = new Node(null, node1.frequency+node2.frequency, null);
         root.left = node1;
         root.right = node2;
 
@@ -126,13 +130,13 @@ public class HuffmanTree {
 }
 
 class Node {
-    char character;
+    Character character;
     int frequency;
     Node left;
     Node right;
     Node parent;
 
-    public Node(char character, int freq, Node parent) {
+    public Node(Character character, int freq, Node parent) {
         this.character = character;
         this.frequency = freq;
         this.left = null;
