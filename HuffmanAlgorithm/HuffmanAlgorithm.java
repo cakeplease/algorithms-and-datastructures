@@ -1,4 +1,4 @@
-//package HuffmanAlgorithm;
+package HuffmanAlgorithm;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ public class HuffmanAlgorithm {
             action = args[0];
             filename = args[1];
         } catch (Exception e) {
-            throw new Exception("Use action name as first parameter and filename as second. For example: compile diverse.lyx.lz");
+            throw new Exception("Use action name as first parameter and filename as second. For example: compress diverse.lyx.lz");
         }
 
 
@@ -24,7 +24,7 @@ public class HuffmanAlgorithm {
                 HuffmanDecompress hd = new HuffmanDecompress(filename, "decoded-"+filename.replace(".huff", ""));
                 break;
             default:
-                System.out.println("Invalid action. Try using \"compile\" or \"decompile\" instead following by a filename.");
+                System.out.println("Invalid action. Try using \"compress\" or \"decompress\" instead following by a filename.");
         }
     }
 }
